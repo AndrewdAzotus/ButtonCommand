@@ -1,0 +1,65 @@
+        public class BtnCmd : ICommand, INotifyPropertyChanged
+        {
+            #region PropertyChangedEventHandler-Init
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void NotifyPropertyChanged(String info) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(info));
+            #endregion
+
+            private Action<object> execute;
+            private Predicate<object> _CanExecute;
+            private event EventHandler CanExecuteChangedInternal;
+            private string _Text;
+            public string Text { get => _Text; set { if (_Text != value) { _Text = value; NotifyPropertyChanged(nameof(Text)); } } }
+            private bool _IsExecutable = true;
+            public bool IsExecutable { get => _IsExecutable; set { _IsExecutable = value; _CanExecute = _ => IsExecutable; } }
+
+            public BtnCmd(Action<object> execute) : this(execute, true) { }
+
+            public BtnCmd(Action<object> execute, bool canExecute)
+            {
+                if (execute == null)
+                    throw new ArgumentNullException("execute");
+
+                this.execute = execute;
+                _CanExecute = _ => canExecute;
+            }
+
+            public event EventHandler CanExecuteChanged
+            {
+                add
+                {
+                    CommandManager.RequerySuggested += value;
+                    this.CanExecuteChangedInternal += value;
+                }
+                remove
+                {
+                    CommandManager.RequerySuggested -= value;
+                    this.CanExecuteChangedInternal -= value;
+                }
+            }
+
+            public bool CanExecute(object parameter)
+            {
+                return _CanExecute != null && _CanExecute(parameter);
+            }
+
+            public void Execute(object parameter)
+            {
+                this.execute(parameter);
+            }
+
+            public void OnCanExecuteChanged()
+            {
+                EventHandler handler = this.CanExecuteChangedInternal;
+                if (handler != null)
+                {
+                    handler.Invoke(this, EventArgs.Empty);
+                }
+            }
+
+            public void Destroy()
+            {
+                _CanExecute = _ => false;
+                this.execute = _ => { return; };
+            }
+        }
