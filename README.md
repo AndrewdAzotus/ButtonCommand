@@ -9,9 +9,8 @@ Use it thus:
 
 in XAML:
 
-  <Button x:Name="BtnExit" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Height="20"
+  Button x:Name="BtnExit" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Height="20"
           Content="{Binding ExitCmd.Text}" Command="{Binding ExitCmd}"
-          />
 
 In the Class that is in the DataContext for the XAML:
 
@@ -28,5 +27,7 @@ And, finally, in the Constructor:
 Much simpler than the RelayCommand, and to Dis/Enable the button:
 
 ExitCmd.IsExecutable = false;
+
 ExitCmd.IsExecutable = true;
-ExitCmd.IsExecutable = <condition>;
+
+ExitCmd.IsExecutable = [condition];
